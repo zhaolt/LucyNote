@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">好运笔记</string>
+    <string name="splash_slogan">Lucky Note.</string>
+    <string name="cancel">取消</string>
+    <string name="save">保存</string>
+    <string name="this_is_title">这里是标题~</string>
+</resources>
