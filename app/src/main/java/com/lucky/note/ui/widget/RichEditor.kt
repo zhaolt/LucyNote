@@ -262,7 +262,7 @@ class RichEditor : WebView {
     @SuppressLint("ClickableViewAccessibility")
     fun setImageClickListener(listener: ImageClickListener) {
         imageClickListener = listener
-        setOnTouchListener { v, event ->
+        setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     downX = event.x

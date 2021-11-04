@@ -11,4 +11,8 @@
         <item name="windowActionBar">false</item>
         <item name="android:scaleType">fitCenter</item>
     </style>
+    <style name="BottomDialogStyle" parent="@android:style/Theme.Dialog">
+        <item name="android:windowEnterAnimation">@anim/bottom_dialog_enter</item>
+        <item name="android:windowExitAnimation">@anim/bottom_dialog_exit</item>
+    </style>
 </resources>

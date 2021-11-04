@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ColorPalette">
+        <attr name="color_picker_circle_radius" format="dimension"/>
+        <attr name="color_picker_center_radius" format="dimension"/>
+        <attr name="color_picker_center_color" format="color"/>
+    </declare-styleable>
+</resources>

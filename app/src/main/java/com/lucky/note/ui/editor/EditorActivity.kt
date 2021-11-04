@@ -108,6 +108,13 @@ class EditorActivity : BaseActivity(), View.OnClickListener {
         KeyBoardUtils.openKeyBoard(et_title, this)
     }
 
+    private fun showColorPaletteDialog() {
+        var fragment = supportFragmentManager.findFragmentByTag(ColorPaletteDialog.TAG)
+        if (fragment == null)
+            fragment = ColorPaletteDialog.newInstance()
+        (fragment as ColorPaletteDialog).show(supportFragmentManager, ColorPaletteDialog.TAG)
+    }
+
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.iv_insert_photo -> {
@@ -126,7 +133,8 @@ class EditorActivity : BaseActivity(), View.OnClickListener {
                 rich_editor.setUnderline()
             }
             R.id.iv_format_color -> {
-
+                KeyBoardUtils.closeKeyBoard(et_title, this)
+                showColorPaletteDialog()
             }
             R.id.iv_format_bulleted_list -> {
                 againEdit()
