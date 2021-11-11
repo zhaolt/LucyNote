@@ -34,7 +34,9 @@ class EditorActivity : BaseActivity(), View.OnClickListener {
             setActionText(getString(R.string.cancel))
             setMenuText(getString(R.string.save))
             setMenuTextEnable(false)
-            setActionTextClickCallback { finish() }
+            setActionTextClickCallback {
+                finish()
+            }
         }
     }
 
@@ -50,13 +52,17 @@ class EditorActivity : BaseActivity(), View.OnClickListener {
         iv_undo.setOnClickListener(this)
     }
 
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.activity_bottom_silent, R.anim.activity_pop_side_out)
+    }
 
     private fun initEditor() {
         rich_editor.setEditorFontSize(18)
         rich_editor.setEditorFontColor(resources.getColor(R.color.textBlack))
         rich_editor.setEditorBackgroundColor(Color.WHITE)
         rich_editor.setPadding(15, 15, 15, 15)  // 这里直接填px就可以，css里做了适配！
-        rich_editor.setPlaceholder("请开始你的创作~")
+        rich_editor.setPlaceholder(getString(R.string.note_content_hint))
         rich_editor.setTextChangeListener(object : RichEditor.OnTextChangeListener {
             override fun onTextChange(text: String?) {
                 if (TextUtils.isEmpty(et_title.text.toString().trim())) {

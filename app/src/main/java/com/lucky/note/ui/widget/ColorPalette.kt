@@ -9,6 +9,7 @@ import android.view.View
 import com.lucky.note.R
 import kotlin.math.*
 
+
 /**
  * @Created by Walter on 2021/10/29
  */
@@ -26,6 +27,7 @@ class ColorPalette : View {
     private var handleDistance: Double = 0.0
     private var hue: Double = 0.0           // 色相
     private var brightness: Double = 1.0    // 亮度
+    private var lastBrightness: Double = 1.0
     private var saturation: Double = 1.0    // 饱和度
     private var hsv = FloatArray(3)
     private lateinit var backgroundBitmap: Bitmap
@@ -112,8 +114,8 @@ class ColorPalette : View {
     private fun getHandlePoint(a: Point, b: Point, cutRadius: Int): Point {
         val radian = getRadian(a, b)
         return Point(
-            (a.x + cutRadius * cos(radian)).toInt(),
-            (a.x + cutRadius * sin(radian)).toInt()
+            a.x + (cutRadius * cos(radian.toDouble())).toInt(),
+            a.x + (cutRadius * sin(radian.toDouble())).toInt()
         )
     }
 
@@ -141,11 +143,11 @@ class ColorPalette : View {
             return hue
         }
         if (rockX > centerX && centerY > rockY)
-            hue = asin(deltaB / deltaC) * 180
+            hue = asin(deltaB / deltaC) * 180 / PI
         else if (rockX < centerX && rockY < centerY)
-            hue = asin(deltaA / deltaC) * 180
+            hue = asin(deltaA / deltaC) * 180 / PI + 90
         else if (rockX < centerX && rockY > centerY)
-            hue = asin(deltaB / deltaC) * 180
+            hue = asin(deltaB / deltaC) * 180 / PI + 180
         else if (rockX > centerX && rockY > centerY)
             hue = asin(deltaA / deltaC) * 180 / PI + 270
         return hue
@@ -156,8 +158,36 @@ class ColorPalette : View {
     }
 
     fun setBrightness(brightness: Double) {
+        if (brightness == lastBrightness)
+            return
         this.brightness = brightness
+        lastBrightness = brightness
         backgroundBitmap = createColorWheelBitmap(bigCircle * 2, bigCircle * 2)
+        val h = hue.toFloat()
+        val sat = saturation.toFloat()
+        val brt = brightness.toFloat()
+        hsv[0] = h
+        hsv[1] = sat
+        hsv[2] = brt
+        colorChangeCallback?.invoke(hsv)
+        invalidate()
+    }
+
+    fun update(color: Int) {
+        val hsv = FloatArray(3)
+        Color.colorToHSV(color, hsv)
+        if (lastBrightness != hsv[2].toDouble()) {
+            brightness = hsv[2].toDouble()
+            lastBrightness = brightness
+            backgroundBitmap = createColorWheelBitmap(bigCircle * 2, bigCircle * 2)
+        }
+        val radians = Math.toRadians(hsv[0].toDouble())
+        Log.i(TAG, "update: hsv[1]: ${hsv[1]}")
+        val cutRadius = bigCircle * hsv[1] - rudeRadius - 5
+        val x = bigCircle + cutRadius * cos(radians)
+        val y = bigCircle + cutRadius * sin(radians)
+        handlePosition.x = x.toInt()
+        handlePosition.y = y.toInt()
         invalidate()
     }
 
@@ -176,11 +206,16 @@ class ColorPalette : View {
         )
     }
 
+
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE, MotionEvent.ACTION_UP -> {
-                handleDistance =
-                    getDistance(event.x, event.y, centerPoint.x.toFloat(), centerPoint.y.toFloat())
+                handleDistance = getDistance(
+                    event.x,
+                    event.y,
+                    centerPoint.x.toFloat(),
+                    centerPoint.y.toFloat()
+                )
                 if (handleDistance <= bigCircle - rudeRadius) {
                     handlePosition.set(event.x.toInt(), event.y.toInt())
                 } else {
@@ -205,9 +240,12 @@ class ColorPalette : View {
                 if (saturation >= 1.0) saturation = 1.0
             }
         }
-        hsv[0] = hue.toFloat()
-        hsv[1] = saturation.toFloat()
-        hsv[2] = brightness.toFloat()
+        val h = hue.toFloat()
+        val sat = saturation.toFloat()
+        val brt = brightness.toFloat()
+        hsv[0] = h
+        hsv[1] = sat
+        hsv[2] = brt
         Log.i(TAG, "hsv[0] = ${hsv[0]}, hsv[1] = ${hsv[1]}, hsv[2] = ${hsv[2]}")
         colorChangeCallback?.invoke(hsv)
         invalidate()

@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
+    <color name="colorPrimary">#FFFFFF</color>
+    <color name="colorPrimaryDark">#FFFFFF</color>
+    <color name="colorAccent">#0B38BB</color>
+    <color name="colorItemBorder">#03DAC5</color>
+    <color name="windowBackground">#F0F0F0</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="textBlack">#333333</color>
     <color name="textGravy">#707070</color>
+    <color name="confirmButtonColor">#0B38BB</color>
+    <color name="confirmButtonPressedColor">#4264BB</color>
 </resources>

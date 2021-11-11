@@ -7,8 +7,12 @@ import android.util.Log
 import android.view.*
 import android.widget.SeekBar
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.GridLayoutManager
 import com.lucky.note.R
 import com.lucky.note.base.BaseDialogFragment
+import com.lucky.note.data.ColorBoardItem
+import com.lucky.note.ui.editor.adapter.ColorPaletteAdapter
+import com.lucky.note.ui.editor.adapter.ColorPaletteItemDecoration
 import com.lucky.note.util.DeviceInfoUtils
 import kotlinx.android.synthetic.main.fragment_color_palette_dialog.*
 
@@ -17,6 +21,7 @@ import kotlinx.android.synthetic.main.fragment_color_palette_dialog.*
  */
 class ColorPaletteDialog : BaseDialogFragment() {
 
+    private val colorListAdapter = ColorPaletteAdapter()
 
     override fun onStart() {
         val width = DeviceInfoUtils.getScreenWidth()
@@ -52,13 +57,13 @@ class ColorPaletteDialog : BaseDialogFragment() {
 
     private fun init() {
         color_palette.setColorChangeCallback {
-            Log.i(TAG, "colorChangeCallback [0] = ${it[0]}, [1] = ${it[1]}, [2] = ${it[2]}")
-            v_color_display.setBackgroundColor(Color.HSVToColor(it))
+            updateDisplayView(Color.HSVToColor(it))
         }
         v_close_button.setOnClickListener { dismiss() }
         brightness_seek_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                color_palette.setBrightness(progress / 100.0)
+                if (fromUser)
+                    color_palette.setBrightness(progress / 100.0)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -68,6 +73,46 @@ class ColorPaletteDialog : BaseDialogFragment() {
             }
 
         })
+        val colorList = initPresetColor()
+        colorListAdapter.addChildClickViewIds(R.id.root_frame)
+        colorListAdapter.setOnItemChildClickListener { adapter, _, position ->
+            val list = adapter.data as MutableList<ColorBoardItem>
+            updateDisplayView(list[position].color)
+            color_palette.update(list[position].color)
+        }
+        rv_color_fragment_list.layoutManager = GridLayoutManager(context, 6)
+        rv_color_fragment_list.adapter = colorListAdapter
+        rv_color_fragment_list.setHasFixedSize(true)
+        rv_color_fragment_list.addItemDecoration(ColorPaletteItemDecoration())
+        colorListAdapter.setNewInstance(colorList)
+    }
+
+    private fun initPresetColor(): MutableList<ColorBoardItem> {
+        val colorList = ArrayList<ColorBoardItem>()
+        colorList.add(ColorBoardItem(Color.BLACK, false))
+        for (i in 0..10) {
+            val hsv = FloatArray(3)
+            hsv[0] = (i * 30).toFloat()
+            hsv[1] = 1.0f
+            hsv[2] = 1.0f
+            colorList.add(ColorBoardItem(Color.HSVToColor(hsv), false))
+        }
+        return colorList
+    }
+
+    private fun updateDisplayView(color: Int) {
+        val hsv = FloatArray(3)
+        Color.colorToHSV(color, hsv)
+        val seekProgress = (hsv[2] * 100f).toInt()
+        brightness_seek_bar.progress = seekProgress
+        v_color_display.setBackgroundColor(color)
+        val list = colorListAdapter.data
+        for (c in list) {
+            c.selected = false
+            if (c.color == color)
+                c.selected = true
+        }
+        colorListAdapter.notifyDataSetChanged()
     }
 
 

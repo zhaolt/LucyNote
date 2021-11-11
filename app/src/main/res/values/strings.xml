@@ -1,7 +1,9 @@
 <resources>
-    <string name="app_name">好运笔记</string>
+    <string name="app_name">LuckyNotes</string>
     <string name="splash_slogan">Lucky Note.</string>
-    <string name="cancel">取消</string>
-    <string name="save">保存</string>
-    <string name="this_is_title">这里是标题~</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="this_is_title">This is title~</string>
+    <string name="note_list_is_empty">It\'s empty.</string>
+    <string name="note_content_hint">Please start your creation~</string>
 </resources>
