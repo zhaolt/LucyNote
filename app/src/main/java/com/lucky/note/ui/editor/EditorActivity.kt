@@ -20,6 +20,8 @@ import kotlinx.android.synthetic.main.layout_format_bar.*
  */
 class EditorActivity : BaseActivity(), View.OnClickListener {
 
+    private var lastSelectedColor: Int = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_editor)
@@ -117,8 +119,12 @@ class EditorActivity : BaseActivity(), View.OnClickListener {
     private fun showColorPaletteDialog() {
         var fragment = supportFragmentManager.findFragmentByTag(ColorPaletteDialog.TAG)
         if (fragment == null)
-            fragment = ColorPaletteDialog.newInstance()
-        (fragment as ColorPaletteDialog).show(supportFragmentManager, ColorPaletteDialog.TAG)
+            fragment = ColorPaletteDialog.newInstance(lastSelectedColor)
+        val dialog = fragment as ColorPaletteDialog
+        dialog.setColorChooseCallback {
+
+        }
+        dialog.show(supportFragmentManager, ColorPaletteDialog.TAG)
     }
 
     override fun onClick(v: View?) {

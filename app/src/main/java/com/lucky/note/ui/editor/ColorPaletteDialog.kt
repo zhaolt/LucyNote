@@ -21,7 +21,9 @@ import kotlinx.android.synthetic.main.fragment_color_palette_dialog.*
  */
 class ColorPaletteDialog : BaseDialogFragment() {
 
+    private var onColorChooseCallback: ((color: Int) -> Unit)? = null
     private val colorListAdapter = ColorPaletteAdapter()
+    private var selectedColor: Int = 0
 
     override fun onStart() {
         val width = DeviceInfoUtils.getScreenWidth()
@@ -56,10 +58,18 @@ class ColorPaletteDialog : BaseDialogFragment() {
     }
 
     private fun init() {
+        arguments?.apply {
+            selectedColor = getInt(EXTRA_CURRENT_COLOR)
+            updateDisplayView(selectedColor)
+        }
         color_palette.setColorChangeCallback {
             updateDisplayView(Color.HSVToColor(it))
         }
         v_close_button.setOnClickListener { dismiss() }
+        v_choose_button.setOnClickListener {
+            onColorChooseCallback?.invoke(selectedColor)
+            dismiss()
+        }
         brightness_seek_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser)
@@ -89,7 +99,7 @@ class ColorPaletteDialog : BaseDialogFragment() {
 
     private fun initPresetColor(): MutableList<ColorBoardItem> {
         val colorList = ArrayList<ColorBoardItem>()
-        colorList.add(ColorBoardItem(Color.BLACK, false))
+        colorList.add(ColorBoardItem(resources.getColor(R.color.textBlack), false))
         for (i in 0..10) {
             val hsv = FloatArray(3)
             hsv[0] = (i * 30).toFloat()
@@ -105,6 +115,7 @@ class ColorPaletteDialog : BaseDialogFragment() {
         Color.colorToHSV(color, hsv)
         val seekProgress = (hsv[2] * 100f).toInt()
         brightness_seek_bar.progress = seekProgress
+        selectedColor = color
         v_color_display.setBackgroundColor(color)
         val list = colorListAdapter.data
         for (c in list) {
@@ -115,11 +126,20 @@ class ColorPaletteDialog : BaseDialogFragment() {
         colorListAdapter.notifyDataSetChanged()
     }
 
+    fun setColorChooseCallback(callback: (color: Int) -> Unit) {
+        onColorChooseCallback = callback
+    }
+
 
     companion object {
+        private const val EXTRA_CURRENT_COLOR = "CurrentColor"
         const val TAG = "ColorPaletteDialog"
         @JvmStatic
-        fun newInstance() = ColorPaletteDialog()
+        fun newInstance(currentColor: Int) = ColorPaletteDialog().apply {
+            val args = Bundle()
+            args.putInt(EXTRA_CURRENT_COLOR, currentColor)
+            arguments = args
+        }
     }
 
 
